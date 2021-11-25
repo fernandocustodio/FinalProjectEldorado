@@ -16,5 +16,7 @@ module.exports = {
     'consistent-return': 'off',
     'class-methods-use-this': 'off',
     'no-promise-executor-return': 'off',
+    camelcase: 'off',
+    'no-unused-vars': ['error', { argsIgnorePattern: 'next' }],
   },
 };

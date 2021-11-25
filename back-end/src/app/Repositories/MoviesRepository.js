@@ -1,38 +1,63 @@
-const { v4 } = require('uuid');
-
-let movies = [
-  {
-    id: v4(),
-    name: 'Mateus',
-    email: 'meuemail@gmail.com',
-    phone: '123123123',
-    category_id: v4(),
-  },
-  {
-    id: v4(),
-    name: 'Matasdasdasdeus',
-    email: 'teste@gmail.com',
-    phone: '124234233123123',
-    category_id: v4(),
-  },
-];
+const db = require('../../database/index');
 
 class MoviesRepository{
-  findAll() {
-    return new Promise((resolve) => resolve(movies));
+  async findAll(orderBy = 'ASC') {
+    const direction = orderBy.toUpperCase() === 'DESC' ? 'DESC' : 'ASC';
+    const rows = await db.query(`
+      SELECT movies.*,  users.name AS users_name
+      FROM movies
+      LEFT JOIN users ON users.id = movies.users_id
+      ORDER BY movies.name ${direction}
+    `);
+
+    return rows;
   }
 
-  findById(id) {
-    return new Promise((resolve) => resolve(
-      movies.find((movie) => movie.id === id),
-    ));
+  async findById(id) {
+    const [row] = await db.query(`
+      SELECT movies.*,  users.name AS users_name
+      FROM movies 
+      LEFT JOIN users ON users.id = movies.users_id
+      WHERE movies.id =$1
+    `, [id]);
+
+    return row;
   }
 
-  delete(id){
-    return new Promise((resolve) => {
-      movies = movies.filter((movie) => movie.id !== id);
-      resolve();
-    });
+  async findByName(name) {
+    const [row] = await db.query('SELECT * FROM movies WHERE name = $1', [name]);
+
+    return row;
+  }
+
+  async create({
+    name, poster, description, release_date, upload_date, users_id,
+  }){
+    const [row] = await db.query(`
+      INSERT INTO movies(name, poster, description, release_date, upload_date, users_id) 
+      VALUES($1, $2, $3, $4, $5, $6)
+      RETURNING *
+    `, [name, poster, description, release_date, upload_date, users_id]);
+
+    return row;
+  }
+
+  async update(id, {
+    name, poster, description, release_date, upload_date, users_id,
+  }){
+    const [row] = await db.query(`
+      UPDATE movies
+      SET name = $1, poster = $2, description = $3, release_date = $4, upload_date = $5, users_id = $6
+      WHERE id = $7
+      RETURNING *
+    `, [name, poster, description, release_date, upload_date, users_id, id]);
+
+    return row;
+  }
+
+  async delete(id){
+    const deleteOp = await db.query('DELETE FROM movies WHERE id = $1', [id]);
+    return deleteOp;
   }
 }
 
