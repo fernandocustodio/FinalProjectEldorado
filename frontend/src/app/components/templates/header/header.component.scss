@@ -1,0 +1,16 @@
+.header {
+	display: blox;
+	align-items: center;
+	a {
+		display: flex;
+		align-items: center;
+		text-decoration: none;
+	}
+	.title-group {
+		padding-left: 25px;
+		i {
+			padding-right: 5px;
+			color: rgb(71, 68, 235)
+		}
+	}
+}
