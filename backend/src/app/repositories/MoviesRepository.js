@@ -6,7 +6,7 @@ class MoviesRepository{
     const rows = await db.query(`
       SELECT movies.*,  users.name AS users_name
       FROM movies
-      INNER JOIN users ON users.id = movies.users_id
+      LEFT JOIN users ON users.id = movies.users_id
       ORDER BY movies.name ${direction}
     `);
 
